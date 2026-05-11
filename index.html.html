@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOLAR - Sobat Laju Reaksi</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&family=Space+Grotesk:wght@500;700&family=Syne:wght@800&display=swap" rel="stylesheet">
+
+  <!-- Sound Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+  <style>
+    :root { --pink: #FF75C3; --purple: #8F00FF; --cream: #FFFDD0; --brown: #4B2C20; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background-color: var(--cream);
+      margin: 0;
+      overflow-x: hidden;
+      background-image: linear-gradient(var(--pink) 1px, transparent 1px), linear-gradient(90deg, var(--pink) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .mascot-watermark { position: fixed; width: 350px; opacity: 0.07; z-index: -2; pointer-events: none; animation: drift 25s infinite alternate ease-in-out; }
+    @keyframes drift { from { transform: rotate(-5deg) translate(-30px, -30px); } to { transform: rotate(5deg) translate(30px, 30px); } }
+    .floating-chem { position: absolute; z-index: -1; user-select: none; animation: float 5s infinite ease-in-out; opacity: 0.6; font-size: 2.5rem; }
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(10deg); } }
+    @keyframes bounce-custom { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+    .maskot-anim { animation: bounce-custom 3s infinite ease-in-out; }
+    @keyframes pulse-soft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .btn-pulse { animation: pulse-soft 2s infinite ease-in-out; }
+
+    .solar-title {
+      font-family: 'Fredoka', cursive;
+      color: var(--purple);
+      -webkit-text-stroke: 2.5px var(--brown);
+      paint-order: stroke fill;
+      text-shadow: 3px 3px 0px var(--brown), -1px -1px 0px var(--brown), 1px -1px 0px var(--brown), -1px 1px 0px var(--brown), 1px 1px 0px var(--brown);
+      display: inline-block;
+    }
+    .y2k-card { background: white; border: 4px solid var(--brown); box-shadow: 12px 12px 0px var(--purple); border-radius: 30px; position: relative; }
+    .mascot-circle {
+      width: 140px; height: 140px; margin: -70px auto 10px auto;
+      border: 5px solid var(--brown); border-radius: 50%;
+      background-color: white; box-shadow: 6px 6px 0px var(--pink);
+      overflow: hidden; display: flex; justify-content: center; align-items: center;
+    }
+    .mascot-circle img { width: 100%; height: 100%; object-fit: cover; }
+    .y2k-input { border: 2.5px solid var(--brown); padding: 10px; border-radius: 12px; width: 100%; font-size: 0.9rem; font-weight: 700; outline: none; }
+    .btn-start {
+      background-color: var(--purple); color: white; border: 4px solid var(--brown);
+      padding: 12px; font-size: 1.8rem; font-weight: 900; box-shadow: 8px 8px 0px var(--brown);
+      font-family: 'Syne'; transition: 0.2s; cursor: pointer;
+    }
+    .btn-start:hover { transform: translate(-3px, -3px); box-shadow: 11px 11px 0px var(--pink); }
+    .btn-materi-sub {
+      background: white; border: 4px solid var(--brown); padding: 16px; border-radius: 20px;
+      font-family: 'Fredoka', cursive; font-size: 1.1rem; box-shadow: 6px 6px 0px var(--pink);
+      transition: 0.2s; cursor: pointer; width: 100%; display: flex; align-items: center; gap: 12px; color: var(--brown);
+    }
+    .btn-materi-sub:hover { transform: translate(-4px, -4px); box-shadow: 10px 10px 0px var(--purple); background-color: #fff8fc; }
+    .modal-backdrop { background: rgba(75, 44, 32, 0.85); backdrop-filter: blur(7px); }
+    .agar-modal-content {
+      background: linear-gradient(135deg, #ff4d4d, #ff99cc, rgba(255, 255, 255, 0.95));
+      border: 5px solid var(--brown); border-radius: 35px; box-shadow: 15px 15px 0px var(--pink);
+      max-width: 900px; width: 95%; position: relative;
+    }
+    .hidden { display: none; }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 10px; border: 2px solid var(--cream); }
+
+    .satu-gambar {
+      display: flex;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+    .card-gambar {
+      background: white;
+      border-radius: 28px;
+      border: 4px solid var(--brown);
+      box-shadow: 8px 8px 0px var(--pink);
+      overflow: hidden;
+      width: 320px;
+      transition: transform 0.2s;
+    }
+    .card-gambar:hover { transform: scale(1.02); }
+    .card-gambar img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-bottom: 3px solid var(--brown);
+      background-color: #f9f2e7;
+    }
+    .card-gambar .label {
+      font-family: 'Fredoka', cursive;
+      font-weight: bold;
+      text-align: center;
+      padding: 10px 8px;
+      background: #fff0f5;
+      color: var(--brown);
+      font-size: 0.9rem;
+    }
+    .duo-gambar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin: 1.5rem 0;
+    }
+
+    /* Quiz Styles */
+    .quiz-option { transition: all 0.2s; cursor: pointer; border: 2px solid var(--brown); background: white; border-radius: 40px; padding: 12px 16px; margin: 8px 0; font-weight: bold; display: flex; align-items: center; gap: 12px; }
+    .quiz-option:hover { background: #ffe0f0; transform: translateX(6px); box-shadow: 4px 4px 0px var(--pink); }
+    .quiz-option.selected { background: #d9f0ff; border: 3px solid var(--purple); box-shadow: 0 0 0 2px white, 0 0 0 4px var(--purple); }
+    .quiz-option.disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+    .feedback-correct { background: #b9f6ca; border-left: 12px solid #2e7d32; }
+    .feedback-wrong { background: #ffcdd2; border-left: 12px solid #c62828; }
+    .quiz-submit-btn { background-color: var(--purple); border: 4px solid var(--brown); color: white; padding: 12px 24px; border-radius: 40px; font-weight: 900; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+    .quiz-submit-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px var(--pink); }
+    .quiz-submit-btn.disabled { opacity: 0.5; pointer-events: none; transform: none; }
+  </style>
+</head>
+
+<body>
+  <!-- Watermark -->
+  <img src="maskot.png" class="mascot-watermark" style="top: 5%; left: 5%;" alt="">
+  <img src="maskot.png" class="mascot-watermark" style="bottom: 5%; right: 5%; animation-delay: -5s;" alt="">
+  <img src="maskot.png" class="fixed opacity-10 w-64 -z-10" style="top: 10%; left: -5%; transform: rotate(-20deg);" alt="">
+  <img src="maskot.png" class="fixed opacity-10 w-64 -z-10" style="bottom: 10%; right: -5%; transform: rotate(15deg);" alt="">
+  <div class="floating-chem" style="top: 15%; left: 10%;">🧪</div>
+  <div class="floating-chem" style="top: 10%; right: 15%;">⚗️</div>
+  <div class="floating-chem" style="bottom: 20%; left: 8%;">🧬</div>
+  <div class="floating-chem" style="bottom: 10%; right: 12%;">🔬</div>
+
+  <!-- COVER PAGE -->
+  <div id="cover-page" class="min-h-screen flex items-center justify-center p-6">
+    <div class="y2k-card p-8 w-full max-w-sm mt-12 text-center">
+      <div class="mascot-circle maskot-anim"><img src="maskot.png" alt="Mascot" onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=pink';"></div>
+      <h1 class="solar-title text-[2.6rem]">SOLAR</h1>
+      <p class="font-bold text-pink-500 uppercase tracking-widest text-[10px] mt-1 mb-6 italic"> Sobat Laju Reaksi </p>
+      <div class="space-y-3 text-left">
+        <div><label class="font-black text-[10px] uppercase block ml-1 text-gray-600">Nama Lengkap</label><input type="text" id="nama" class="y2k-input" placeholder="Nama kamu..."></div>
+        <div class="grid grid-cols-2 gap-3"><div><label class="font-black text-[10px] uppercase block ml-1 text-gray-600">Kelas</label><input type="text" value="XI" readonly class="y2k-input bg-gray-50 cursor-not-allowed text-center"></div><div><label class="font-black text-[10px] uppercase block ml-1 text-gray-600">No. Absen</label><select id="absen" class="y2k-input"><option value="">Pilih</option></select></div></div>
+        <div><label class="font-black text-[10px] uppercase block ml-1 text-gray-600">Email</label><input type="email" id="email" class="y2k-input" placeholder="nama@gmail.com" pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$" title="Email harus @gmail.com" required></div>
+      </div>
+      <button onclick="login()" class="btn-start rounded-2xl mt-6 w-full btn-pulse">MULAI BELAJAR! <span class="text-2xl ml-2">🚀</span></button>
+      <p class="mt-4 text-[11px] font-bold text-gray-600">Isi data dulu ya sobat, biar progress belajarnya rapi ✨</p>
+    </div>
+  </div>
+
+  <!-- VISITOR PAGE -->
+  <div id="visitor-page" class="hidden min-h-screen">
+    <nav class="p-4 border-b-4 border-brown bg-white flex justify-between items-center sticky top-0 z-50"><h2 class="solar-title text-2xl" style="-webkit-text-stroke: 1.8px var(--brown);">SOLAR</h2><div id="user-info" class="font-bold border-4 border-brown px-4 py-1 bg-pink-300 rounded-full text-xs shadow-md"></div></nav>
+    <main class="px-6 py-2">
+      <div id="grid-modul-utama" class="max-w-6xl mx-auto py-10">
+        <h2 class="text-3xl font-black mb-3 text-center uppercase italic underline decoration-purple-500"> Materi Laju Reaksi </h2>
+        <p class="text-center font-bold text-gray-600 text-sm max-w-3xl mx-auto mb-10">hai sobat laju reaksi, pada kesempatan kali ini kalian akan mempelajari tentang laju reaksi, apa itu laju reaksi dan seperti apa ya? yuk kita pelajari</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="y2k-card p-6 flex flex-col items-center text-center group cursor-pointer shadow-[8px_8px_0px_#FF75C3]" onclick="pindahSubBab(1)"><div class="text-6xl mb-4 group-hover:scale-125 transition-transform">📘</div><h3 class="font-black text-xl mb-1">SUB BAB 1</h3><p class="text-xs font-bold text-gray-500 uppercase">Pengertian Laju Reaksi</p><button class="mt-6 bg-pink-400 border-4 border-brown px-6 py-2 rounded-xl font-black text-white"> BUKA </button></div>
+          <div class="y2k-card p-6 flex flex-col items-center text-center group cursor-pointer" onclick="pindahSubBab(2)"><div class="text-6xl mb-4 group-hover:scale-125 transition-transform">🧪</div><h3 class="font-black text-xl mb-1">SUB BAB 2</h3><p class="text-xs font-bold text-gray-500 uppercase">Persamaan Laju Reaksi</p><button class="mt-6 bg-pink-400 border-4 border-brown px-6 py-2 rounded-xl font-black text-white"> BUKA </button></div>
+          <div class="y2k-card p-6 flex flex-col items-center text-center group cursor-pointer" onclick="pindahSubBab(3)"><div class="text-6xl mb-4 group-hover:scale-125 transition-transform">⚗️</div><h3 class="font-black text-xl mb-1">SUB BAB 3</h3><p class="text-xs font-bold text-gray-500">Molaritas, Hubungan molaritas dengan kadar larutan dan Pengenceran Larutan</p><button class="mt-6 bg-pink-400 border-4 border-brown px-6 py-2 rounded-xl font-black text-white"> BUKA </button></div>
+          <div class="y2k-card p-6 flex flex-col items-center text-center group cursor-pointer" onclick="pindahSubBab(4)"><div class="text-6xl mb-4 group-hover:scale-125 transition-transform">🌍</div><h3 class="font-black text-xl mb-1">SUB BAB 4</h3><p class="text-xs font-bold text-gray-500">Faktor - faktor yang mempengaruhi laju reaksi</p><button class="mt-6 bg-pink-400 border-4 border-brown px-6 py-2 rounded-xl font-black text-white"> BUKA </button></div>
+          <div class="y2k-card p-6 flex flex-col items-center text-center group cursor-pointer" onclick="pindahSubBab(5)"><div class="text-6xl mb-4 group-hover:scale-125 transition-transform">🌟</div><h3 class="font-black text-xl mb-1">SUB BAB 5</h3><p class="text-xs font-bold text-gray-500">Penerapan Laju Reaksi dalam Kehidupan</p><button class="mt-6 bg-pink-400 border-4 border-brown px-6 py-2 rounded-xl font-black text-white"> BUKA </button></div>
+        </div>
+      </div>
+
+      <!-- ===================== MENU SUB BAB 1 ===================== -->
+      <div id="menu-sub-bab-1" class="hidden max-w-2xl mx-auto py-6">
+        <button onclick="pindahHalaman('grid-modul-utama')" class="mb-6 font-black text-purple-600 underline flex items-center gap-2"><span>← Kembali ke Menu Utama</span></button>
+        <div class="text-center mb-8 relative"><h2 class="text-2xl font-black uppercase italic bg-white border-4 border-brown inline-block px-8 py-2 rounded-full shadow-[5px_5px_0px_var(--pink)]">Sub Bab 1: Pengertian Laju Reaksi</h2><p class="mt-3 text-sm font-bold text-gray-600">Pilih urutan belajar biar mudah: mulai dari “Tahukah Kalian?” → Video → E-Modul → LKPD → Kuis ✨</p><div id="subbab1-progress" class="mt-4 inline-block bg-white border-4 border-brown px-5 py-2 rounded-2xl text-xs font-black text-brown shadow-[5px_5px_0px_var(--purple)]">Progress Subbab 1: <span id="subbab1-progress-text">0/5</span> • Nilai: <span id="subbab1-score-text">0</span></div></div>
+        <div class="grid grid-cols-1 gap-5">
+          <button onclick="bukaModal('modal-tahukah-sub1'); markCompleteSub1('subbab1_tahukah');" class="btn-materi-sub btn-pulse"><span class="text-3xl">✨</span><div class="text-left"><div class="font-black text-lg">Tahukah Kalian?</div><div class="text-[10px] uppercase font-bold text-pink-500">mulai dari sini!</div></div></button>
+          <button onclick="bukaModal('modal-video-sub1'); markStartedSub1('subbab1_video');" class="btn-materi-sub btn-pulse"><span class="text-3xl">🎬</span><div class="text-left"><div class="font-black text-lg">Simak Video Berikut Ini</div><div class="text-[10px] uppercase font-bold text-purple-500">Pengantar sub bab 1</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/a7a6ef1d50.html', '📖 E-Modul Bahan Ajar Sub Bab 1'); markCompleteSub1('subbab1_emodul');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📖</span><div class="text-left"><div class="font-black text-lg">E-Modul Bahan Ajar</div><div class="text-[10px] uppercase font-bold text-blue-500">materi lengkap</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/dc751f3114.html', '📝 LKPD Sub Bab 1'); markCompleteSub1('subbab1_lkpd');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📝</span><div class="text-left"><div class="font-black text-lg">LKPD</div><div class="text-[10px] uppercase font-bold text-green-500">lembar kerja peserta didik</div></div></button>
+          <button onclick="bukaQuiz(1)" class="btn-materi-sub btn-pulse"><span class="text-3xl">🏆</span><div class="text-left"><div class="font-black text-lg">Yuk kerjakan quiz</div><div class="text-[10px] uppercase font-bold text-orange-500">seberapa paham kalian!</div></div></button>
+        </div>
+      </div>
+
+      <!-- ===================== MENU SUB BAB 2 ===================== -->
+      <div id="menu-sub-bab-2" class="hidden max-w-2xl mx-auto py-6">
+        <button onclick="pindahHalaman('grid-modul-utama')" class="mb-6 font-black text-purple-600 underline flex items-center gap-2"><span>← Kembali ke Menu Utama</span></button>
+        <div class="text-center mb-8 relative"><h2 class="text-2xl font-black uppercase italic bg-white border-4 border-brown inline-block px-8 py-2 rounded-full shadow-[5px_5px_0px_var(--pink)]">Sub Bab 2: Persamaan Laju Reaksi</h2><p class="mt-3 text-sm font-bold text-gray-600">Pilih urutan belajar biar mudah: mulai dari “Tahukah Kalian?” → Video → E-Modul → LKPD → Kuis ✨</p><div id="subbab2-progress" class="mt-4 inline-block bg-white border-4 border-brown px-5 py-2 rounded-2xl text-xs font-black text-brown shadow-[5px_5px_0px_var(--purple)]">Progress Subbab 2: <span id="subbab2-progress-text">0/5</span> • Nilai: <span id="subbab2-score-text">0</span></div></div>
+        <div class="grid grid-cols-1 gap-5">
+          <button onclick="bukaModal('modal-tahukah-sub2'); markCompleteSub2('subbab2_tahukah');" class="btn-materi-sub btn-pulse"><span class="text-3xl">✨</span><div class="text-left"><div class="font-black text-lg">Tahukah Kalian?</div><div class="text-[10px] uppercase font-bold text-pink-500">mulai dari sini!</div></div></button>
+          <button onclick="bukaModal('modal-video-sub2'); markStartedSub2('subbab2_video');" class="btn-materi-sub btn-pulse"><span class="text-3xl">🎬</span><div class="text-left"><div class="font-black text-lg">Simak Video Berikut Ini</div><div class="text-[10px] uppercase font-bold text-purple-500">Pengantar sub bab 2</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/861472823f.html#page/1', '📖 E-Modul Persamaan Laju Reaksi'); markCompleteSub2('subbab2_emodul');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📖</span><div class="text-left"><div class="font-black text-lg">E-Modul Bahan Ajar</div><div class="text-[10px] uppercase font-bold text-blue-500">materi lengkap</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/dc751f3114.html', '📝 LKPD Persamaan Laju Reaksi'); markCompleteSub2('subbab2_lkpd');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📝</span><div class="text-left"><div class="font-black text-lg">LKPD</div><div class="text-[10px] uppercase font-bold text-green-500">lembar kerja peserta didik</div></div></button>
+          <button onclick="bukaQuiz(2)" class="btn-materi-sub btn-pulse"><span class="text-3xl">🏆</span><div class="text-left"><div class="font-black text-lg">Yuk kerjakan quiz</div><div class="text-[10px] uppercase font-bold text-orange-500">seberapa paham kalian!</div></div></button>
+        </div>
+      </div>
+
+      <!-- ===================== MENU SUB BAB 3 ===================== -->
+      <div id="menu-sub-bab-3" class="hidden max-w-2xl mx-auto py-6">
+        <button onclick="pindahHalaman('grid-modul-utama')" class="mb-6 font-black text-purple-600 underline flex items-center gap-2"><span>← Kembali ke Menu Utama</span></button>
+        <div class="text-center mb-8 relative"><h2 class="text-2xl font-black uppercase italic bg-white border-4 border-brown inline-block px-8 py-2 rounded-full shadow-[5px_5px_0px_var(--pink)]">Sub Bab 3: Molaritas dan Pengenceran</h2><p class="mt-3 text-sm font-bold text-gray-600">Pilih urutan belajar biar mudah: mulai dari “Tahukah Kalian?” → Video → E-Modul → LKPD → Kuis ✨</p><div id="subbab3-progress" class="mt-4 inline-block bg-white border-4 border-brown px-5 py-2 rounded-2xl text-xs font-black text-brown shadow-[5px_5px_0px_var(--purple)]">Progress Subbab 3: <span id="subbab3-progress-text">0/5</span> • Nilai: <span id="subbab3-score-text">0</span></div></div>
+        <div class="grid grid-cols-1 gap-5">
+          <button onclick="bukaModal('modal-tahukah-sub3'); markCompleteSub3('subbab3_tahukah');" class="btn-materi-sub btn-pulse"><span class="text-3xl">✨</span><div class="text-left"><div class="font-black text-lg">Tahukah Kalian?</div><div class="text-[10px] uppercase font-bold text-pink-500">mulai dari sini!</div></div></button>
+          <button onclick="bukaModal('modal-video-sub3'); markStartedSub3('subbab3_video');" class="btn-materi-sub btn-pulse"><span class="text-3xl">🎬</span><div class="text-left"><div class="font-black text-lg">Simak Video Berikut Ini</div><div class="text-[10px] uppercase font-bold text-purple-500">Pengantar sub bab 3</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/1e496bd2d0.html', '📖 E-Modul Bahan Ajar Sub Bab 3'); markCompleteSub3('subbab3_emodul');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📖</span><div class="text-left"><div class="font-black text-lg">E-Modul Bahan Ajar</div><div class="text-[10px] uppercase font-bold text-blue-500">materi lengkap</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/a76daf9283.html', '📝 LKPD Sub Bab 3'); markCompleteSub3('subbab3_lkpd');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📝</span><div class="text-left"><div class="font-black text-lg">LKPD</div><div class="text-[10px] uppercase font-bold text-green-500">lembar kerja peserta didik</div></div></button>
+          <button onclick="bukaQuiz(3)" class="btn-materi-sub btn-pulse"><span class="text-3xl">🏆</span><div class="text-left"><div class="font-black text-lg">Yuk kerjakan quiz</div><div class="text-[10px] uppercase font-bold text-orange-500">seberapa paham kalian!</div></div></button>
+        </div>
+      </div>
+
+      <!-- ===================== MENU SUB BAB 4 ===================== -->
+      <div id="menu-sub-bab-4" class="hidden max-w-2xl mx-auto py-6">
+        <button onclick="pindahHalaman('grid-modul-utama')" class="mb-6 font-black text-purple-600 underline flex items-center gap-2"><span>← Kembali ke Menu Utama</span></button>
+        <div class="text-center mb-8 relative"><h2 class="text-2xl font-black uppercase italic bg-white border-4 border-brown inline-block px-8 py-2 rounded-full shadow-[5px_5px_0px_var(--pink)]">Sub Bab 4: Faktor - faktor yang mempengaruhi laju reaksi</h2><p class="mt-3 text-sm font-bold text-gray-600">Pilih urutan belajar: Tahukah Kalian? → E-Modul → LKPD → Simulasi Praktikum → Quiz ✨</p><div id="subbab4-progress" class="mt-4 inline-block bg-white border-4 border-brown px-5 py-2 rounded-2xl text-xs font-black text-brown shadow-[5px_5px_0px_var(--purple)]">Progress Subbab 4: <span id="subbab4-progress-text">0/5</span> • Nilai: <span id="subbab4-score-text">0</span></div></div>
+        <div class="grid grid-cols-1 gap-5">
+          <button onclick="bukaModal('modal-tahukah-sub4'); markCompleteSub4('subbab4_tahukah');" class="btn-materi-sub btn-pulse"><span class="text-3xl">✨</span><div class="text-left"><div class="font-black text-lg">Tahukah Kalian?</div><div class="text-[10px] uppercase font-bold text-pink-500">mulai dari sini!</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/a3ec31cd37.html', '📖 E-Modul Bahan Ajar Sub Bab 4'); markCompleteSub4('subbab4_emodul');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📖</span><div class="text-left"><div class="font-black text-lg">E-Modul Bahan Ajar</div><div class="text-[10px] uppercase font-bold text-blue-500">materi lengkap</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/eab56a3f23.html', '📝 LKPD Sub Bab 4'); markCompleteSub4('subbab4_lkpd');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📝</span><div class="text-left"><div class="font-black text-lg">LKPD</div><div class="text-[10px] uppercase font-bold text-green-500">lembar kerja peserta didik</div></div></button>
+          <button onclick="bukaModal('modal-video-sub4'); markStartedSub4('subbab4_video');" class="btn-materi-sub btn-pulse"><span class="text-3xl">🔬</span><div class="text-left"><div class="font-black text-lg">Simulasi praktikum</div><div class="text-[10px] uppercase font-bold text-indigo-500">yuk tambah wawasanmu disini!</div></div></button>
+          <button onclick="bukaQuiz(4)" class="btn-materi-sub btn-pulse"><span class="text-3xl">🏆</span><div class="text-left"><div class="font-black text-lg">Yuk kerjakan quiz</div><div class="text-[10px] uppercase font-bold text-orange-500">seberapa paham kalian!</div></div></button>
+        </div>
+      </div>
+
+      <!-- ===================== MENU SUB BAB 5 ===================== -->
+      <div id="menu-sub-bab-5" class="hidden max-w-2xl mx-auto py-6">
+        <button onclick="pindahHalaman('grid-modul-utama')" class="mb-6 font-black text-purple-600 underline flex items-center gap-2"><span>← Kembali ke Menu Utama</span></button>
+        <div class="text-center mb-8 relative"><h2 class="text-2xl font-black uppercase italic bg-white border-4 border-brown inline-block px-8 py-2 rounded-full shadow-[5px_5px_0px_var(--pink)]">Sub Bab 5: Penerapan Laju Reaksi dalam Kehidupan</h2><p class="mt-3 text-sm font-bold text-gray-600">Pilih urutan belajar: Tahukah Kalian? → Video → E-Modul → LKPD → Quiz ✨</p><div id="subbab5-progress" class="mt-4 inline-block bg-white border-4 border-brown px-5 py-2 rounded-2xl text-xs font-black text-brown shadow-[5px_5px_0px_var(--purple)]">Progress Subbab 5: <span id="subbab5-progress-text">0/5</span> • Nilai: <span id="subbab5-score-text">0</span></div></div>
+        <div class="grid grid-cols-1 gap-5">
+          <button onclick="bukaModal('modal-tahukah-sub5'); markCompleteSub5('subbab5_tahukah');" class="btn-materi-sub btn-pulse"><span class="text-3xl">✨</span><div class="text-left"><div class="font-black text-lg">Tahukah Kalian?</div><div class="text-[10px] uppercase font-bold text-pink-500">mulai dari sini!</div></div></button>
+          <button onclick="bukaModal('modal-video-sub5'); markStartedSub5('subbab5_video');" class="btn-materi-sub btn-pulse"><span class="text-3xl">🎬</span><div class="text-left"><div class="font-black text-lg">Simak Video Berikut Ini</div><div class="text-[10px] uppercase font-bold text-purple-500">Pengantar sub bab 5</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/4313dd4608.html', '📖 E-Modul Bahan Ajar Sub Bab 5'); markCompleteSub5('subbab5_emodul');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📖</span><div class="text-left"><div class="font-black text-lg">E-Modul Bahan Ajar</div><div class="text-[10px] uppercase font-bold text-blue-500">materi lengkap</div></div></button>
+          <button onclick="bukaFlipbook('https://heyzine.com/flip-book/2f3b046e52.html', '📝 LKPD Sub Bab 5'); markCompleteSub5('subbab5_lkpd');" class="btn-materi-sub btn-pulse"><span class="text-3xl">📝</span><div class="text-left"><div class="font-black text-lg">LKPD</div><div class="text-[10px] uppercase font-bold text-green-500">lembar kerja peserta didik</div></div></button>
+          <button onclick="bukaQuiz(5)" class="btn-materi-sub btn-pulse"><span class="text-3xl">🏆</span><div class="text-left"><div class="font-black text-lg">Yuk kerjakan quiz</div><div class="text-[10px] uppercase font-bold text-orange-500">seberapa paham kalian!</div></div></button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL QUIZ GENERIK -->
+  <div id="quiz-modal" class="hidden fixed inset-0 z-[200] modal-backdrop flex items-center justify-center p-4">
+    <div class="y2k-card bg-white w-full max-w-3xl max-h-[85vh] overflow-y-auto" style="background: #fff9f0;">
+      <div class="sticky top-0 bg-white p-4 border-b-4 border-brown flex justify-between items-center"><h3 id="quiz-title" class="font-black text-2xl text-purple-800">📋 Quiz Subbab</h3><button onclick="tutupQuiz()" class="bg-red-400 border-4 border-brown px-4 py-1 rounded-full font-black">✖ Tutup</button></div>
+      <div id="quiz-content" class="p-6 space-y-6"></div>
+    </div>
+  </div>
+
+  <!-- ===================== SEMUA MODAL TAHUKAH & VIDEO (LENGKAP DARI HTML ASLI) ===================== -->
+  <div id="modal-tahukah-sub1" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="agar-modal-content p-8 max-h-[90vh] overflow-y-auto w-full max-w-4xl">
+      <button onclick="tutupModal('modal-tahukah-sub1')" class="absolute top-4 right-4 text-3xl font-black text-brown hover:scale-125 transition">×</button>
+      <div class="text-center mb-4"><h3 class="text-2xl font-black text-white mb-2 drop-shadow-[2px_2px_0px_var(--brown)]" style="font-family: 'Fredoka';">Fenomena Laju Reaksi dalam Kehidupan</h3><p class="text-white/80 text-sm italic">Contoh: Mobil Berkarat dan Peluncuran Roket NASA</p></div>
+      <div class="duo-gambar"><div class="card-gambar"><img src="bab 1 Mobil_karatan.jpg" alt="Mobil berkarat" onerror="this.src='bab 1 Mobil_karatan.jpg'"><div class="label">🚗 Mobil Berkarat (Reaksi Lambat)</div></div><div class="card-gambar"><img src="bab 1 peluncuran roket nasa.jpg" alt="Peluncuran Roket NASA" onerror="this.src='bab 1 peluncuran roket nasa.jpg'"><div class="label">🚀 Roket NASA (Reaksi Sangat Cepat)</div></div></div>
+      <div class="bg-white/60 p-6 rounded-2xl border-4 border-brown text-brown font-bold text-sm leading-relaxed shadow-inner space-y-4">
+        <p>Halo siswa-siswi hebat!/sobat laju reaksi. Sebelum kita mulai mempelajari materi baru tentang laju reaksi, mari kita ingat kembali apa yang sudah kalian pelajari sebelumnya. Pasti kalian sudah mempelajari tentang stoikiometri. Mungkin kalian masih ingat bagaimana kita menghitung jumlah mol, massa zat, atau volume gas dari suatu reaksi kimia, bukan?</p>
+        <p>Nah, tahukah kalian? Materi stoikiometri bukan hanya soal menghitung – tapi juga menjadi dasar penting untuk memahami bagaimana reaksi kimia berlangsung, termasuk seberapa cepat reaksi itu terjadi.</p>
+        <div class="bg-purple-600/20 p-5 rounded-xl border-2 border-purple-500 border-dashed shadow-inner"><p class="text-purple-900 font-bold mb-3">✨ Tahukah Kalian? ✨</p><p class="text-purple-900 leading-relaxed">Didalam kehidupan kita sehari-hari banyak sekali reaksi yang terjadi. Nah dalam lingkungan sekitar kita pasti sering menemui beberapa fenomena reaksi yang terjadi dalam kehidupan sehari-hari. Seperti contoh dalam fenomena <span class="font-black underline">mobil berkarat</span> dan <span class="font-black underline">peluncuran roket NASA</span>.</p><p class="text-purple-900 leading-relaxed mt-3">Nah dari contoh-contoh di atas dapatkah kalian bayangkan bahwa dalam kehidupan sehari-hari ada beragam reaksi kimia yang berlangsung, baik secara sangat cepat maupun yang berlangsung dengan lambat. Kecepatan proses reaksi kimia berlangsung inilah yang kemudian dinamakan <span class="font-black italic">laju reaksi kimia</span>.</p></div>
+        <div class="bg-yellow-50 p-3 rounded-xl border-2 border-yellow-300 mt-2 text-center"><img src="maskot.png" class="w-10 inline-block maskot-anim mr-2" onerror="this.style.display='none'"><span class="text-xs font-bold text-gray-700">Yuk lanjut ke video & e-modul untuk pemahaman lebih seru! 🧪✨</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-video-sub1" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="y2k-card bg-white p-6 max-w-4xl w-full relative">
+      <button onclick="tutupModal('modal-video-sub1')" class="absolute -top-4 -right-4 bg-white border-4 border-brown w-10 h-10 rounded-full font-black text-xl hover:scale-110 transition">×</button>
+      <h3 class="font-black text-xl mb-4 uppercase text-center italic">🎬 Video Pengantar Laju Reaksi</h3>
+      <div class="w-full rounded-2xl overflow-hidden border-4 border-brown bg-black">
+        <video id="video-subbab1" class="w-full h-auto" controls preload="metadata">
+          <source src="bab 1  pengertian laju reaksi .mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="mt-4 text-center font-bold text-sm text-gray-500">🎥 Video penjelasan tentang Pengertian Laju Reaksi</p>
+    </div>
+  </div>
+
+  <div id="modal-tahukah-sub2" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="agar-modal-content p-8 max-h-[90vh] overflow-y-auto w-full max-w-4xl">
+      <button onclick="tutupModal('modal-tahukah-sub2')" class="absolute top-4 right-4 text-3xl font-black text-brown hover:scale-125 transition">×</button>
+      <div class="text-center mb-4"><h3 class="text-2xl font-black text-white mb-2 drop-shadow-[2px_2px_0px_var(--brown)]" style="font-family: 'Fredoka';">Agar-Agar Hidangan Lezat</h3><p class="text-white/80 text-sm italic">Analogi Persamaan Laju Reaksi</p></div>
+      <div class="satu-gambar"><div class="card-gambar"><img src="agar_agar.png.png" alt="Agar-agar" onerror="this.src='agar agar png.png'"><div class="label">🍮 Agar-Agar</div></div></div>
+      <div class="bg-white/60 p-6 rounded-2xl border-4 border-brown text-brown font-bold text-sm leading-relaxed shadow-inner space-y-4">
+        <p>Agar-agar adalah makanan penutup yang terbuat dari rumput laut, agar-agar punya tekstur kenyal dan segar yang bikin nagih. Sering kita jumpai di rumah, sekolah, hingga pesta. Proses pembuatannya cukup simpel: bubuk agar-agar dicampur air dan gula, lalu dipanaskan hingga mendidih, setelah itu didinginkan hingga mengeras. Pas kamu tetesin sirup pewarna ke agar-agar, warnanya nyebar pelan-pelan, kayak lagi loading.</p>
+        <div class="bg-purple-600/20 p-5 rounded-xl border-2 border-purple-500 border-dashed shadow-inner"><p class="text-purple-900 font-bold mb-3">✨ Nah, ini mirip konsep persamaan laju reaksi di kimia ✨</p><p class="text-purple-900 leading-relaxed">Proses penyebaran sirup ini analog dengan konsep laju reaksi:</p><ul class="mt-2 space-y-1 text-purple-900 list-disc pl-5"><li><b>Orde 0:</b> Kecepatannya cuek sama jumlah pewarna.</li><li><b>Orde 1:</b> Makin banyak makin ngebut.</li><li><b>Orde 2:</b> Kecepatan naik sangat drastis seiring penambahan sirup.</li></ul><p class="mt-3">Pasti kamu pengen lebih tau kan kayak apa si hubungan agar-agar dengan persamaan laju reaksi?</p><p class="mt-2 font-mono bg-white px-2 py-1 rounded inline-block text-purple-900">Yuk - yuk kita pelajari subbab 2 tentang persamaan laju reaksi!</p></div>
+        <div class="bg-yellow-50 p-3 rounded-xl border-2 border-yellow-300 mt-2 text-center"><img src="maskot.png" class="w-10 inline-block maskot-anim mr-2" onerror="this.style.display='none'"><span class="text-xs font-bold text-gray-700">Pahami orde reaksi, kuasai persamaan laju reaksi! ⚡</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-video-sub2" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="y2k-card bg-white p-6 max-w-4xl w-full relative">
+      <button onclick="tutupModal('modal-video-sub2')" class="absolute -top-4 -right-4 bg-white border-4 border-brown w-10 h-10 rounded-full font-black text-xl hover:scale-110 transition">×</button>
+      <h3 class="font-black text-xl mb-4 uppercase text-center italic">🎬 Video Persamaan Laju Reaksi</h3>
+      <div class="w-full rounded-2xl overflow-hidden border-4 border-brown bg-black">
+        <video id="video-subbab2" class="w-full h-auto" controls preload="metadata">
+          <source src="Bab 2  Persamaan laju reaksi.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="mt-4 text-center font-bold text-sm text-gray-500">🎥 Video penjelasan tentang Persamaan Laju Reaksi dan Orde Reaksi</p>
+    </div>
+  </div>
+
+  <div id="modal-tahukah-sub3" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="agar-modal-content p-8 max-h-[90vh] overflow-y-auto w-full max-w-4xl">
+      <button onclick="tutupModal('modal-tahukah-sub3')" class="absolute top-4 right-4 text-3xl font-black text-brown hover:scale-125 transition">×</button>
+      <div class="text-center mb-4"><h3 class="text-2xl font-black text-white mb-2 drop-shadow-[2px_2px_0px_var(--brown)]" style="font-family: 'Fredoka';">Menyeduh Kopi</h3><p class="text-white/80 text-sm italic">Analogi Molaritas, Hubungan molaritas dengan kadar larutan dan Pengenceran Larutan</p></div>
+      <div class="satu-gambar"><div class="card-gambar"><img src="bab 3 menyeduh kopi.png" alt="Menyeduh Kopi" onerror="this.src='bab 3 menyeduh kopi.png'"><div class="label">☕ Menyeduh Kopi</div></div></div>
+      <div class="bg-white/60 p-6 rounded-2xl border-4 border-brown text-brown font-bold text-sm leading-relaxed shadow-inner space-y-4">
+        <p>Pernahkah kamu menyeduh kopi terlalu kental hingga terasa pahit, lalu menambahkan air agar rasanya pas? Hal sederhana yang sering kita jumpai tersebut sebenarnya berkaitan erat dengan molaritas yaitu ukuran konsentrasi zat dalam larutan.</p>
+        <div class="bg-purple-600/20 p-5 rounded-xl border-2 border-purple-500 border-dashed shadow-inner"><p class="text-purple-900 font-bold mb-3">✨ Tahukah Kalian? ✨</p><p class="text-purple-900 leading-relaxed">Dalam dunia kimia, molaritas sangat berperan penting dalam mengatur kecepatan reaksi, karena semakin pekat larutannya, semakin cepat partikel bereaksi. Dengan memahami hubungan antara molaritas, kadar larutan, dan pengenceran, kita bisa memahami mengapa reaksi kimia bisa terjadi lebih cepat atau lambat hanya karena perbedaan konsentrasi.</p></div>
+        <div class="bg-yellow-50 p-3 rounded-xl border-2 border-yellow-300 mt-2 text-center"><img src="maskot.png" class="w-10 inline-block maskot-anim mr-2" onerror="this.style.display='none'"><span class="text-xs font-bold text-gray-700">Yuk lanjut ke video & e-modul untuk pemahaman lebih seru! ☕⚡</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-video-sub3" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="y2k-card bg-white p-6 max-w-4xl w-full relative">
+      <button onclick="tutupModal('modal-video-sub3')" class="absolute -top-4 -right-4 bg-white border-4 border-brown w-10 h-10 rounded-full font-black text-xl hover:scale-110 transition">×</button>
+      <h3 class="font-black text-xl mb-4 uppercase text-center italic">🎬 Video Molaritas dan Pengenceran</h3>
+      <div class="w-full rounded-2xl overflow-hidden border-4 border-brown bg-black">
+        <video id="video-subbab3" class="w-full h-auto" controls preload="metadata">
+          <source src="Bab 3  Molaritas.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="mt-4 text-center font-bold text-sm text-gray-500">🎥 Video penjelasan tentang Molaritas dan Pengenceran Larutan</p>
+    </div>
+  </div>
+
+  <div id="modal-tahukah-sub4" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="agar-modal-content p-8 max-h-[90vh] overflow-y-auto w-full max-w-4xl">
+      <button onclick="tutupModal('modal-tahukah-sub4')" class="absolute top-4 right-4 text-3xl font-black text-brown hover:scale-125 transition">×</button>
+      <div class="text-center mb-4"><h3 class="text-2xl font-black text-white mb-2 drop-shadow-[2px_2px_0px_var(--brown)]" style="font-family: 'Fredoka';">Faktor yang Mempengaruhi Laju Reaksi</h3><p class="text-white/80 text-sm italic">Suhu, Konsentrasi, Luas Permukaan, dan Katalis</p></div>
+      <div class="satu-gambar"><div class="card-gambar"><img src="bab 4 roket dan mobil.png" alt="Faktor-faktor yang memengaruhi Laju Reaksi" onerror="this.src='bab 4 roket dan mobil.png'"><div class="label">🔬 Faktor-faktor Laju Reaksi</div></div></div>
+      <div class="bg-white/60 p-6 rounded-2xl border-4 border-brown text-brown font-bold text-sm leading-relaxed shadow-inner space-y-4">
+        <p>Pernahkah kalian memperhatikan bahwa beberapa reaksi kimia berlangsung sangat cepat, sementara yang lain sangat lambat? Misalnya, seperti contoh yang pernah kita singgung yaitu pembakaran pada roket untuk peluncuran roket yang dimana gas panas tersebut keluar sangat cepat , sedangkan pada mobil berkarat, besi berkarat membutuhkan berhari-hari bahkan berbulan-bulan.</p>
+        <div class="bg-purple-600/20 p-5 rounded-xl border-2 border-purple-500 border-dashed shadow-inner"><p class="text-purple-900 font-bold mb-3">✨ Tahukah Kalian? ✨</p><p class="text-purple-900 leading-relaxed">Mengapa demikian? Mengapa kecepatan reaksi bisa berbeda? Hari ini kita akan mengungkap rahasia di balik perbedaan kecepatan reaksi kimia. 
+Ternyata, ada empat faktor utama yang bisa mempercepat atau memperlambat suatu reaksi: konsentrasi zat, luas permukaan, suhu, dan katalis. 
+
+Konsentrasi yang lebih besar membuat jumlah partikel lebih banyak, sehingga peluang tumbukan meningkat. Luas permukaan yang lebih besar membuat area kontak antar zat semakin luas. Suhu yang lebih tinggi membuat partikel bergerak lebih cepat karena energi kinetiknya meningkat. Sementara itu, katalis mempercepat reaksi dengan menurunkan energi aktivasi.
+Semua faktor ini dapat dijelaskan melalui teori tumbukan. Reaksi kimia terjadi jika partikel saling bertumbukan secara efektif, yaitu memiliki energi yang cukup dan arah tumbukan yang tepat.</p></div>
+        <div class="bg-yellow-50 p-3 rounded-xl border-2 border-yellow-300 mt-2 text-center"><img src="maskot.png" class="w-10 inline-block maskot-anim mr-2" onerror="this.style.display='none'"><span class="text-xs font-bold text-gray-700">yuk kita lanjut ke e-modul & simulasi praktikum! 🔬✨</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-video-sub4" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="y2k-card bg-white p-6 max-w-4xl w-full relative">
+      <button onclick="tutupModal('modal-video-sub4')" class="absolute -top-4 -right-4 bg-white border-4 border-brown w-10 h-10 rounded-full font-black text-xl hover:scale-110 transition">×</button>
+      <h3 class="font-black text-xl mb-4 uppercase text-center italic">🔬 Simulasi Praktikum - Faktor Laju Reaksi</h3>
+      <div class="w-full rounded-2xl overflow-hidden border-4 border-brown bg-black">
+        <video id="video-subbab4" class="w-full h-auto" controls preload="metadata">
+          <source src="YTDown_YouTube_Percobaan-Sederhana-Laju-Reaksi-Faktor-S_Media_szWa5hvrDRM_002_720p.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="mt-4 text-center font-bold text-sm text-gray-500">🎥 Video simulasi praktikum tentang faktor-faktor yang mempengaruhi laju reaksi (source video youtube Chemistry Kita)</p>
+    </div>
+  </div>
+
+  <div id="modal-tahukah-sub5" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="agar-modal-content p-8 max-h-[90vh] overflow-y-auto w-full max-w-4xl">
+      <button onclick="tutupModal('modal-tahukah-sub5')" class="absolute top-4 right-4 text-3xl font-black text-brown hover:scale-125 transition">×</button>
+      <div class="text-center mb-4"><h3 class="text-2xl font-black text-white mb-2 drop-shadow-[2px_2px_0px_var(--brown)]" style="font-family: 'Fredoka';">Penerapan Laju Reaksi dalam Kehidupan Sehari-hari</h3><p class="text-white/80 text-sm italic">Contoh: Makanan basi, pembakaran, fotosintesis, dan lainnya</p></div>
+      <div class="satu-gambar"><div class="card-gambar"><img src="bab5_penerapan_laju.png" alt="Penerapan Laju Reaksi" onerror="this.src='bab 5 penerapan laju.png'"><div class="label">🌟 Penerapan Laju Reaksi</div></div></div>
+      <div class="bg-white/60 p-6 rounded-2xl border-4 border-brown text-brown font-bold text-sm leading-relaxed shadow-inner space-y-4">
+        <p>Pernahkah kalian bertanya, mengapa makanan lebih awet jika disimpan di kulkas, tablet effervescent lebih cepat bereaksi jika dihancurkan, atau besi lebih cepat berkarat jika sering terkena air?</p>
+        <div class="bg-purple-600/20 p-5 rounded-xl border-2 border-purple-500 border-dashed shadow-inner"><p class="text-purple-900 font-bold mb-3">✨ Tahukah Kalian? ✨</p><p class="text-purple-900 leading-relaxed">Peristiwa-peristiwa tersebut menunjukkan bahwa konsep laju reaksi tidak hanya ada di laboratorium, tetapi juga sering terjadi dalam kehidupan sehari-hari. Melalui subbab terakhir ini, kita akan mempelajari bagaimana konsep konsentrasi, luas permukaan, suhu, katalis, dan teori tumbukan dapat digunakan untuk menjelaskan berbagai peristiwa di sekitar kita.</p><p class="text-purple-900 leading-relaxed mt-3">Yuk, pelajari lebih lanjut melalui video dan e-modul!</p></div>
+        <div class="bg-yellow-50 p-3 rounded-xl border-2 border-yellow-300 mt-2 text-center"><img src="maskot.png" class="w-10 inline-block maskot-anim mr-2" onerror="this.style.display='none'"><span class="text-xs font-bold text-gray-700">Yuk lanjut ke video & e-modul untuk pemahaman lebih seru! 🌟✨</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-video-sub5" class="hidden fixed inset-0 z-[100] modal-backdrop flex items-center justify-center p-4">
+    <div class="y2k-card bg-white p-6 max-w-4xl w-full relative">
+      <button onclick="tutupModal('modal-video-sub5')" class="absolute -top-4 -right-4 bg-white border-4 border-brown w-10 h-10 rounded-full font-black text-xl hover:scale-110 transition">×</button>
+      <h3 class="font-black text-xl mb-4 uppercase text-center italic">🎬 Video Penerapan Laju Reaksi</h3>
+      <div class="w-full rounded-2xl overflow-hidden border-4 border-brown bg-black">
+        <video id="video-subbab5" class="w-full h-auto" controls preload="metadata">
+          <source src="Bab 5  Penerapan laju reaksi dalam kehidupan .mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="mt-4 text-center font-bold text-sm text-gray-500">🎥 Video penjelasan tentang Penerapan Laju Reaksi dalam Kehidupan Sehari-hari</p>
+    </div>
+  </div>
+
+  <!-- MODAL FLIPBOOK -->
+  <div id="modal-flipbook" class="hidden fixed inset-0 z-[110] bg-black/95 flex flex-col p-4">
+    <div class="flex justify-between items-center mb-4 px-6"><h3 id="flipbook-title" class="text-white font-black text-xl">📚 Flipbook</h3><button onclick="tutupFlipbook()" class="bg-pink-500 text-white border-4 border-brown px-6 py-2 rounded-xl">TUTUP</button></div>
+    <iframe id="flipbook-frame" class="flex-grow w-full border-4 border-brown rounded-3xl bg-white"></iframe>
+  </div>
+
+  <div id="admin-page" class="hidden p-8 min-h-screen bg-white text-center"><h1 class="text-3xl font-black text-purple-600">CREATOR DASHBOARD</h1></div>
+
+  <script>
+    // ---------- Data Soal Quiz (3 opsi per soal) ----------
+    const bankSoal = {
+      1: [
+        { soal: "Laju reaksi dapat diartikan sebagai...", options: ["perubahan suhu reaksi setiap satuan waktu...", "perubahan konsentrasi reaktan atau produk setiap satuan waktu...", "jumlah mol zat yang selalu bertambah selama reaksi..."], jawaban: 1, pembahasan: "Laju reaksi menunjukkan cepat lambatnya reaksi, yaitu perubahan konsentrasi reaktan atau produk per satuan waktu." },
+        { soal: "Konsentrasi zat A berkurang dari 0,80 M menjadi 0,50 M dalam waktu 10 detik. Laju berkurangnya zat A adalah...", options: ["0,02 M/s...", "0,03 M/s...", "0,05 M/s..."], jawaban: 1, pembahasan: "v = -Δ[A]/Δt = -(-0,30)/10 = 0,03 M/s." },
+        { soal: "Dua reaksi menghasilkan produk yang sama. Reaksi pertama menghasilkan 0,20 M produk dalam 40 detik, reaksi kedua 0,20 M produk dalam 20 detik. Manakah yang memiliki laju lebih besar...", options: ["Reaksi pertama...", "Reaksi kedua...", "Sama besar..."], jawaban: 1, pembahasan: "Reaksi kedua lebih cepat karena waktu lebih singkat (0,01 M/s vs 0,005 M/s)." }
+      ],
+      2: [
+        { soal: "Diketahui persamaan laju reaksi: v = k[A]²[B]. Orde reaksi terhadap A, B, dan total berturut-turut adalah...", options: ["2, 1, 3...", "2, 2, 4...", "1, 1, 2..."], jawaban: 0, pembahasan: "Pangkat pada [A] adalah 2, pada [B] adalah 1, total orde = 3." },
+        { soal: "Suatu reaksi memiliki persamaan laju: v = k[A][B]². Jika konsentrasi A dan B masing-masing dinaikkan 2 kali semula, maka laju menjadi...", options: ["4 kali semula...", "6 kali semula...", "8 kali semula..."], jawaban: 2, pembahasan: "Pengaruh A = 2, B = 2² = 4, total 2×4=8 kali." },
+        { soal: "Berdasarkan data percobaan: [A]=0,1; [B]=0,1 laju 2; [A]=0,2; [B]=0,1 laju 4; [A]=0,1; [B]=0,2 laju 8. Orde reaksi terhadap B adalah...", options: ["1...", "2...", "3..."], jawaban: 1, pembahasan: "Dari percobaan 1 dan 3, [B] naik 2 kali laju naik 4 kali => orde 2." }
+      ],
+      3: [
+        { soal: "Molaritas menyatakan...", options: ["jumlah mol zat terlarut dalam 1 liter larutan...", "jumlah partikel dalam 1 mol zat...", "perbandingan massa pelarut dan larutan..."], jawaban: 0, pembahasan: "Molaritas (M) = mol zat terlarut / volume (L) larutan." },
+        { soal: "0,5 mol NaCl dilarutkan hingga volume 2 liter. Molaritas larutan NaCl adalah...", options: ["0,20 M...", "0,25 M...", "0,50 M..."], jawaban: 1, pembahasan: "M = 0,5 mol / 2 L = 0,25 M." },
+        { soal: "100 mL HCl 2 M diencerkan jadi 500 mL. Molaritas akhir larutan adalah...", options: ["0,2 M...", "0,4 M...", "0,5 M..."], jawaban: 1, pembahasan: "M₁V₁ = M₂V₂ → 2×100 = M₂×500 → M₂ = 0,4 M." }
+      ],
+      4: [
+        { soal: "Menurut teori tumbukan, reaksi kimia akan terjadi jika partikel-partikel...", options: ["bertumbukan dengan energi cukup dan arah tepat...", "memiliki ukuran sama dan selalu berada di tempat tetap...", "bertumbukan tanpa memerlukan energi..."], jawaban: 0, pembahasan: "Tumbukan efektif terjadi jika energi cukup dan arah tepat." },
+        { soal: "Serbuk magnesium bereaksi lebih cepat dari kepingan karena serbuk memiliki...", options: ["luas permukaan lebih besar...", "suhu lebih rendah...", "energi aktivasi lebih tinggi..."], jawaban: 0, pembahasan: "Serbuk memperbesar luas permukaan, meningkatkan frekuensi tumbukan." },
+        { soal: "Berdasarkan tabel (tablet utuh + air dingin 80s; utuh+hangat 45s; hancur+hangat 20s), faktor yang menyebabkan percepatan pada percobaan 3 adalah...", options: ["suhu dan katalis...", "luas permukaan dan suhu...", "konsentrasi dan tekanan..."], jawaban: 1, pembahasan: "Tablet dihancurkan (luas permukaan besar) dan air hangat (suhu tinggi) mempercepat laju." }
+      ],
+      5: [
+        { soal: "Makanan disimpan di kulkas lebih lambat basi karena...", options: ["suhu rendah membuat partikel bergerak lebih lambat...", "suhu rendah memperbesar luas permukaan makanan...", "suhu rendah menambah jumlah katalis dalam makanan..."], jawaban: 0, pembahasan: "Suhu rendah menurunkan energi kinetik, tumbukan efektif berkurang." },
+        { soal: "Cara tepat memperlambat perkaratan pagar besi adalah...", options: ["memperbesar luas permukaan besi...", "melapisi cat atau pelindung...", "menaikkan suhu di sekitar besi..."], jawaban: 1, pembahasan: "Cat mencegah kontak dengan oksigen dan air." },
+        { soal: "Kantin ingin makanan tidak cepat basi, rak besi tidak berkarat, tablet effervescent cepat larut. Solusi untuk tablet adalah...", options: ["simpan di kulkas...", "hancurkan tablet atau pakai air hangat...", "pakai air dingin..."], jawaban: 1, pembahasan: "Memperbesar luas permukaan (dihancurkan) atau suhu lebih tinggi mempercepat reaksi." }
+      ]
+    };
+
+    let activeQuizSub = null;
+    let quizUserAnswers = null;
+    let quizSubmitted = false;
+
+    function bukaQuiz(subbab) {
+      clickSound.play();
+      activeQuizSub = subbab;
+      const soalList = bankSoal[subbab];
+      if(!soalList) return;
+      quizUserAnswers = new Array(soalList.length).fill(null);
+      quizSubmitted = false;
+      document.getElementById("quiz-title").innerText = `📋 Quiz Sub Bab ${subbab} - Laju Reaksi`;
+      const container = document.getElementById("quiz-content");
+      container.innerHTML = "";
+      soalList.forEach((item, idx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "border-2 border-brown rounded-2xl p-4 bg-white shadow-md mb-4";
+        qDiv.innerHTML = `<div class="font-black text-lg mb-2">${idx+1}. ${item.soal}</div><div class="options-area" data-qidx="${idx}"></div><div id="feedback-${idx}" class="mt-3 text-sm font-bold hidden rounded-xl p-2"></div>`;
+        const optsDiv = qDiv.querySelector(".options-area");
+        item.options.forEach((opt, optIdx) => {
+          const optBtn = document.createElement("div");
+          optBtn.className = "quiz-option";
+          optBtn.innerHTML = `<span class="w-6 h-6 rounded-full inline-flex items-center justify-center border-2 border-brown bg-white font-black">${String.fromCharCode(65+optIdx)}</span> <span>${opt}</span>`;
+          optBtn.onclick = () => {
+            if(quizSubmitted) {
+              alert("Quiz sudah disubmit! Tidak bisa mengganti jawaban.");
+              return;
+            }
+            document.querySelectorAll(`.options-area[data-qidx="${idx}"] .quiz-option`).forEach(el => el.classList.remove("selected"));
+            optBtn.classList.add("selected");
+            quizUserAnswers[idx] = optIdx;
+          };
+          optsDiv.appendChild(optBtn);
+        });
+        container.appendChild(qDiv);
+      });
+      const submitBtn = document.createElement("div");
+      submitBtn.className = "mt-6 flex justify-center";
+      submitBtn.innerHTML = `<button id="submit-quiz-btn" class="quiz-submit-btn">✨ Kirim Jawaban & Tandai Selesai ✨</button>`;
+      container.appendChild(submitBtn);
+      document.getElementById("submit-quiz-btn").onclick = () => {
+        if(quizSubmitted) {
+          alert("Quiz sudah disubmit sebelumnya!");
+          return;
+        }
+        let allAnswered = quizUserAnswers.every(ans => ans !== null);
+        if(!allAnswered) { alert("Selesaikan semua soal dulu ya!"); return; }
+        quizSubmitted = true;
+        let correctCount = 0;
+        bankSoal[activeQuizSub].forEach((item, idx) => {
+          const isCorrect = (quizUserAnswers[idx] === item.jawaban);
+          if(isCorrect) correctCount++;
+          const feedbackDiv = document.getElementById(`feedback-${idx}`);
+          feedbackDiv.classList.remove("hidden", "feedback-correct", "feedback-wrong");
+          if(isCorrect) {
+            feedbackDiv.classList.add("feedback-correct");
+            feedbackDiv.innerHTML = `✅ <span class="font-black">Jawaban Benar!</span><br> 📖 Pembahasan: ${item.pembahasan}`;
+          } else {
+            const jawabanBenarHuruf = String.fromCharCode(65+item.jawaban);
+            const jawabanTeks = item.options[item.jawaban];
+            feedbackDiv.classList.add("feedback-wrong");
+            feedbackDiv.innerHTML = `❌ <span class="font-black">Jawaban Salah.</span><br> Jawaban yang benar: ${jawabanBenarHuruf}. ${jawabanTeks}<br> 💡 Pembahasan: ${item.pembahasan}`;
+          }
+          document.querySelectorAll(`.options-area[data-qidx="${idx}"] .quiz-option`).forEach(el => el.classList.add("disabled"));
+        });
+        const nilai = Math.round((correctCount / bankSoal[activeQuizSub].length) * 100);
+        if(activeQuizSub === 1) { markCompleteSub1("subbab1_kuis"); updateScoreSub(1, nilai); }
+        if(activeQuizSub === 2) { markCompleteSub2("subbab2_kuis"); updateScoreSub(2, nilai); }
+        if(activeQuizSub === 3) { markCompleteSub3("subbab3_kuis"); updateScoreSub(3, nilai); }
+        if(activeQuizSub === 4) { markCompleteSub4("subbab4_kuis"); updateScoreSub(4, nilai); }
+        if(activeQuizSub === 5) { markCompleteSub5("subbab5_kuis"); updateScoreSub(5, nilai); }
+        const submitBtnEl = document.getElementById("submit-quiz-btn");
+        if(submitBtnEl) {
+          submitBtnEl.classList.add("disabled");
+          submitBtnEl.innerText = `✅ Selesai! Nilai: ${nilai}`;
+        }
+        alert(`🎉 Nilai Quiz Sub Bab ${activeQuizSub}: ${nilai}. Bagus! Kuis sudah ditandai selesai.`);
+      };
+      document.getElementById("quiz-modal").classList.remove("hidden");
+    }
+
+    function updateScoreSub(sub, scoreVal) {
+      if(!currentUser) return;
+      const map = getProgressMap();
+      const p = ensureUserProgress(currentUser.email);
+      if(p.scores[sub] !== undefined) p.scores[sub] = scoreVal;
+      setProgressMap(map);
+      updateAllProgress();
+    }
+
+    function tutupQuiz() { document.getElementById("quiz-modal").classList.add("hidden"); activeQuizSub = null; }
+
+    // ========== SISTEM PROGRESS & LOGIN (DARI HTML ASLI) ==========
+    const clickSound = new Howl({ src: ['https://assets.mixkit.co/sfx/preview/mixkit-pop-up-item-2029.mp3'] });
+    const startSound = new Howl({ src: ['https://assets.mixkit.co/sfx/preview/mixkit-magical-coin-win-1936.mp3'] });
+    function nowISO() { return new Date().toISOString(); }
+    function loadJSON(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } }
+    function saveJSON(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+    const OWNER_EMAIL = "nwidrinanoviarama@gmail.com";
+    const LS_LOGIN_HISTORY = "solar_login_history_v1";
+    const LS_PROGRESS_BY_EMAIL = "solar_progress_by_email_v3";
+    let currentUser = null;
+    const select = document.getElementById('absen');
+    for (let i = 1; i <= 36; i++) { const opt = document.createElement('option'); opt.value = i; opt.text = i; select.appendChild(opt); }
+
+    function pushLoginHistory(entry) { const hist = loadJSON(LS_LOGIN_HISTORY, []); hist.push(entry); saveJSON(LS_LOGIN_HISTORY, hist); }
+    function getProgressMap() { return loadJSON(LS_PROGRESS_BY_EMAIL, {}); }
+    function setProgressMap(map) { saveJSON(LS_PROGRESS_BY_EMAIL, map); }
+
+    function ensureUserProgress(email) {
+      const map = getProgressMap();
+      if (!map[email]) {
+        map[email] = { scores: {1:0,2:0,3:0,4:0,5:0}, subbab1:{ subbab1_tahukah:false, subbab1_video:false, subbab1_emodul:false, subbab1_lkpd:false, subbab1_kuis:false }, subbab2:{ subbab2_tahukah:false, subbab2_video:false, subbab2_emodul:false, subbab2_lkpd:false, subbab2_kuis:false }, subbab3:{ subbab3_tahukah:false, subbab3_video:false, subbab3_emodul:false, subbab3_lkpd:false, subbab3_kuis:false }, subbab4:{ subbab4_tahukah:false, subbab4_emodul:false, subbab4_lkpd:false, subbab4_video:false, subbab4_kuis:false }, subbab5:{ subbab5_tahukah:false, subbab5_video:false, subbab5_emodul:false, subbab5_lkpd:false, subbab5_kuis:false }, updatedAt: nowISO() };
+        setProgressMap(map);
+      }
+      return map[email];
+    }
+
+    function computeScore(subbabObj, totalItems) { const items = Object.values(subbabObj || {}); const done = items.filter(Boolean).length; return Math.round((done / totalItems) * 100); }
+    function updateAllProgress() { 
+      if(!currentUser) return; 
+      const map = getProgressMap(); 
+      const p = map[currentUser.email]; 
+      if(p){ 
+        p.scores[1] = computeScore(p.subbab1, 5);
+        p.scores[2] = computeScore(p.subbab2, 5);
+        p.scores[3] = computeScore(p.subbab3, 5);
+        p.scores[4] = computeScore(p.subbab4, 5);
+        p.scores[5] = computeScore(p.subbab5, 5);
+        setProgressMap(map); 
+        if(document.getElementById("subbab1-progress-text")) document.getElementById("subbab1-progress-text").innerText = `${Object.values(p.subbab1||{}).filter(Boolean).length}/5`;
+        if(document.getElementById("subbab1-score-text")) document.getElementById("subbab1-score-text").innerText = p.scores[1];
+        if(document.getElementById("subbab2-progress-text")) document.getElementById("subbab2-progress-text").innerText = `${Object.values(p.subbab2||{}).filter(Boolean).length}/5`;
+        if(document.getElementById("subbab2-score-text")) document.getElementById("subbab2-score-text").innerText = p.scores[2];
+        if(document.getElementById("subbab3-progress-text")) document.getElementById("subbab3-progress-text").innerText = `${Object.values(p.subbab3||{}).filter(Boolean).length}/5`;
+        if(document.getElementById("subbab3-score-text")) document.getElementById("subbab3-score-text").innerText = p.scores[3];
+        if(document.getElementById("subbab4-progress-text")) document.getElementById("subbab4-progress-text").innerText = `${Object.values(p.subbab4||{}).filter(Boolean).length}/5`;
+        if(document.getElementById("subbab4-score-text")) document.getElementById("subbab4-score-text").innerText = p.scores[4];
+        if(document.getElementById("subbab5-progress-text")) document.getElementById("subbab5-progress-text").innerText = `${Object.values(p.subbab5||{}).filter(Boolean).length}/5`;
+        if(document.getElementById("subbab5-score-text")) document.getElementById("subbab5-score-text").innerText = p.scores[5];
+      } 
+    }
+
+    function markCompleteSub1(k) { if(!currentUser) return; const map=getProgressMap(); const p=ensureUserProgress(currentUser.email); if(p.subbab1 && p.subbab1.hasOwnProperty(k)){ p.subbab1[k]=true; updateAllProgress(); setProgressMap(map); } }
+    function markCompleteSub2(k) { if(!currentUser) return; const map=getProgressMap(); const p=ensureUserProgress(currentUser.email); if(p.subbab2 && p.subbab2.hasOwnProperty(k)){ p.subbab2[k]=true; updateAllProgress(); setProgressMap(map); } }
+    function markCompleteSub3(k) { if(!currentUser) return; const map=getProgressMap(); const p=ensureUserProgress(currentUser.email); if(p.subbab3 && p.subbab3.hasOwnProperty(k)){ p.subbab3[k]=true; updateAllProgress(); setProgressMap(map); } }
+    function markCompleteSub4(k) { if(!currentUser) return; const map=getProgressMap(); const p=ensureUserProgress(currentUser.email); if(p.subbab4 && p.subbab4.hasOwnProperty(k)){ p.subbab4[k]=true; updateAllProgress(); setProgressMap(map); } }
+    function markCompleteSub5(k) { if(!currentUser) return; const map=getProgressMap(); const p=ensureUserProgress(currentUser.email); if(p.subbab5 && p.subbab5.hasOwnProperty(k)){ p.subbab5[k]=true; updateAllProgress(); setProgressMap(map); } }
+    function markStartedSub1(k){}
+    function markStartedSub2(k){}
+    function markStartedSub3(k){}
+    function markStartedSub4(k){}
+    function markStartedSub5(k){}
+    
+    const videoElem1 = document.getElementById("video-subbab1");
+    if(videoElem1) videoElem1.addEventListener("ended", () => { markCompleteSub1("subbab1_video"); });
+    const videoElem2 = document.getElementById("video-subbab2");
+    if(videoElem2) videoElem2.addEventListener("ended", () => { markCompleteSub2("subbab2_video"); });
+    const videoElem3 = document.getElementById("video-subbab3");
+    if(videoElem3) videoElem3.addEventListener("ended", () => { markCompleteSub3("subbab3_video"); });
+    const videoElem4 = document.getElementById("video-subbab4");
+    if(videoElem4) videoElem4.addEventListener("ended", () => { markCompleteSub4("subbab4_video"); });
+    const videoElem5 = document.getElementById("video-subbab5");
+    if(videoElem5) videoElem5.addEventListener("ended", () => { markCompleteSub5("subbab5_video"); });
+
+    function login() {
+      const nama = document.getElementById('nama').value.trim();
+      const absen = document.getElementById('absen').value;
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      if(!nama || !absen || !email){ alert("Lengkapi data!"); return; }
+      if(!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email)){ alert("Email harus @gmail.com"); return; }
+      startSound.play();
+      currentUser = { nama, absen, email };
+      pushLoginHistory({ nama, absen, email, loggedAt: nowISO() });
+      ensureUserProgress(email);
+      if(email === OWNER_EMAIL){ document.getElementById('cover-page').classList.add('hidden'); document.getElementById('admin-page').classList.remove('hidden'); return; }
+      document.getElementById('cover-page').classList.add('hidden');
+      document.getElementById('visitor-page').classList.remove('hidden');
+      document.getElementById('user-info').innerText = `👋 Hai, ${nama} | Absen: ${absen}`;
+      updateAllProgress();
+    }
+
+    function pindahSubBab(num) { clickSound.play(); const target = `menu-sub-bab-${num}`; const all = ['grid-modul-utama','menu-sub-bab-1','menu-sub-bab-2','menu-sub-bab-3','menu-sub-bab-4','menu-sub-bab-5']; all.forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.add('hidden'); }); document.getElementById(target).classList.remove('hidden'); updateAllProgress(); }
+    function pindahHalaman(id) { clickSound.play(); const all = ['grid-modul-utama','menu-sub-bab-1','menu-sub-bab-2','menu-sub-bab-3','menu-sub-bab-4','menu-sub-bab-5']; all.forEach(i=>{ const el=document.getElementById(i); if(el) el.classList.add('hidden'); }); document.getElementById(id).classList.remove('hidden'); updateAllProgress(); }
+    function bukaModal(id) { clickSound.play(); document.getElementById(id).classList.remove('hidden'); }
+    function tutupModal(id) { 
+      document.getElementById(id).classList.add('hidden'); 
+      const vids = ['video-subbab1','video-subbab2','video-subbab3','video-subbab4','video-subbab5'];
+      vids.forEach(vidId => { const vid = document.getElementById(vidId); if(vid) { vid.pause(); vid.currentTime = 0; } });
+    }
+    function bukaFlipbook(url, title) { clickSound.play(); const modal=document.getElementById('modal-flipbook'); const iframe=document.getElementById('flipbook-frame'); iframe.src=url; document.getElementById('flipbook-title').innerText=title; modal.classList.remove('hidden'); }
+    function tutupFlipbook() { document.getElementById('modal-flipbook').classList.add('hidden'); document.getElementById('flipbook-frame').src=""; }
+    document.addEventListener('keydown',(e)=>{ if(e.key==='Escape'){ tutupModal('modal-tahukah-sub1'); tutupModal('modal-video-sub1'); tutupModal('modal-tahukah-sub2'); tutupModal('modal-video-sub2'); tutupModal('modal-tahukah-sub3'); tutupModal('modal-video-sub3'); tutupModal('modal-tahukah-sub4'); tutupModal('modal-video-sub4'); tutupModal('modal-tahukah-sub5'); tutupModal('modal-video-sub5'); tutupFlipbook(); } });
+    
+    window.bukaModal = bukaModal; window.tutupModal = tutupModal; window.bukaFlipbook = bukaFlipbook; window.tutupFlipbook = tutupFlipbook; window.pindahSubBab = pindahSubBab; window.pindahHalaman = pindahHalaman; window.login = login; window.markCompleteSub1 = markCompleteSub1; window.markStartedSub1 = markStartedSub1; window.markCompleteSub2 = markCompleteSub2; window.markStartedSub2 = markStartedSub2; window.markCompleteSub3 = markCompleteSub3; window.markStartedSub3 = markStartedSub3; window.markCompleteSub4 = markCompleteSub4; window.markStartedSub4 = markStartedSub4; window.markCompleteSub5 = markCompleteSub5; window.markStartedSub5 = markStartedSub5; window.bukaQuiz = bukaQuiz; window.tutupQuiz = tutupQuiz;
+  </script>
+</body>
+</html>
